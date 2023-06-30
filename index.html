@@ -1,0 +1,51 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <style>
+      html,
+      body,
+      #map {
+        height: 100%;
+        width: 100%;
+        padding: 0;
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div style="width: 100vw; height: 100vh" id="map"></div>
+    <script type="text/javascript">
+      var map = L.map("map", {
+        center: L.latLng(-6.2089192, 106.689801),
+        zoom: 11,
+      });
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(
+        map
+      );
+      function onEachFeature(feature, layer) {
+        layer.on("click", function (e) {
+          var properties = feature.properties;
+
+          var popupContent = "<b>Feature Properties:</b><br>";
+          for (var key in properties) {
+            if (properties.hasOwnProperty(key)) {
+              popupContent += key + ": " + properties[key] + "<br>";
+            }
+          }
+
+          layer.bindPopup(popupContent);
+          layer.openPopup();
+        });
+      }
+
+      fetch("indonesia-prov.geojson")
+        .then((e) => e.json())
+        .then((res) => {
+          L.geoJSON(res, {
+            onEachFeature: onEachFeature,
+          }).addTo(map);
+        });
+    </script>
+  </body>
+</html>
