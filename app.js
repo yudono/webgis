@@ -55,8 +55,10 @@ function onEachFeature(feature, layer) {
           .indexOf(e.provinsi.toLowerCase()) > -1
     );
     if (result) {
-      var popupContent = `<b>Kemiskinan Jakarta</b>
-      <h1>${result.persentase}</h1>`;
+      var popupContent = `<h3>Kemiskinan ${result.provinsi}</h3>
+      <h3>Tahun : ${result.tahun}</h3>
+      <h3>Klasifikasi : ${result.klasifikasi}</h3>
+      <h3>Persentase : ${result.persentase}%</h3>`;
       layer.bindPopup(popupContent);
       layer.openPopup();
     }
