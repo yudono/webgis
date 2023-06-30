@@ -92,10 +92,17 @@ function style(feature) {
       color: "white",
       dashArray: "",
       fillOpacity: 1,
-      fillColor: generateColor(result.persentase),
+      fillColor: generateColor(40 - result.persentase),
     };
   } else {
-    console.log(feature.properties.prov_name);
+    return {
+      weight: 2,
+      opacity: 1,
+      color: "white",
+      dashArray: "",
+      fillOpacity: 0,
+      fillColor: generateColor(40 - 0),
+    };
   }
 }
 
