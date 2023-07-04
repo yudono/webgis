@@ -1,3 +1,4 @@
+// sumber : https://data.jakarta.go.id/read-resource/json/data-persentase-penduduk-miskin-indeks-kedalaman-dan-indeks-keparahan-kemiskinan-menurut-provinsi/e7e054f9-f515-4238-aa49-a7f2c5d6fd2f
 let data_kemiskinan = [
   {
     tahun: 2013,

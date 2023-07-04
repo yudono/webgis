@@ -39,26 +39,48 @@ var map = L.map("map", {
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
 function onEachFeature(feature, layer) {
   layer.on("click", function (e) {
-    var properties = feature.properties;
+    // var properties = feature.properties;
 
-    // var popupContent = "<b>Feature Properties:</b><br>";
-    // for (var key in properties) {
-    //   if (properties.hasOwnProperty(key)) {
-    //     popupContent += key + ": " + properties[key] + "<br>";
-    //   }
-    // }
+    if (feature.properties.prov_name === "ACEH") {
+      loadGeoJson("aceh.geojson");
+      layer.remove();
+    }
 
-    var result = data_kemiskinan.find(
-      (e) =>
-        feature.properties.prov_name
-          .toLowerCase()
-          .indexOf(e.provinsi.toLowerCase()) > -1
-    );
+    var result;
+    if (feature.properties.prov_name) {
+      result = data.find(
+        (e) =>
+          feature.properties.prov_name
+            .toLowerCase()
+            .indexOf(e.provinsi.toLowerCase()) > -1
+      );
+    }
     if (result) {
-      var popupContent = `<h3>Kemiskinan ${result.provinsi}</h3>
-      <h3>Tahun : ${result.tahun}</h3>
-      <h3>Klasifikasi : ${result.klasifikasi}</h3>
-      <h3>Persentase : ${result.persentase}%</h3>`;
+      var popupContent = `<h3>${name} ${result.provinsi}</h3>`;
+      popupContent += `<h3>Tahun : ${result.tahun}</h3>`;
+      //   popupContent += `<h3>Klasifikasi : ${result.klasifikasi}</h3>`;
+      popupContent += `<h3>Persentase : ${result.persentase}%</h3>`;
+      //   popupContent += `<h3>Per Jam : ${result.value.toLocaleString("id-ID", {
+      //     style: "currency",
+      //     currency: "IDR",
+      //   })}</h3>`;
+      //   popupContent += `<h3>Per Bulan : ${(result.value * 173).toLocaleString(
+      //     "id-ID",
+      //     {
+      //       style: "currency",
+      //       currency: "IDR",
+      //     }
+      //   )}</h3>`;
+      layer.bindPopup(popupContent);
+      layer.openPopup();
+    } else {
+      var popupContent = "<b>Feature Properties:</b><br>";
+      for (var key in feature.properties) {
+        if (feature.properties.hasOwnProperty(key)) {
+          popupContent += key + ": " + feature.properties[key] + "<br>";
+        }
+      }
+
       layer.bindPopup(popupContent);
       layer.openPopup();
     }
@@ -80,13 +102,26 @@ function generateColor(value) {
   return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 }
 
+function calculatePercentage(value, minValue, maxValue) {
+  var range = maxValue - minValue;
+  var normalizedValue = value - minValue;
+  var percentage = (normalizedValue / range) * 100;
+  return percentage.toFixed(2); // Return percentage with 2 decimal places
+}
+
 function style(feature) {
-  let result = data_kemiskinan.find(
-    (e) =>
-      feature.properties.prov_name
-        .toLowerCase()
-        .indexOf(e.provinsi.toLowerCase()) > -1
-  );
+  var result;
+  if (feature.properties.prov_name) {
+    result = data.find(
+      (e) =>
+        feature.properties.prov_name
+          .toLowerCase()
+          .indexOf(e.provinsi.toLowerCase()) > -1
+    );
+  }
+
+  let values = data.map((e) => e.persentase);
+
   if (result) {
     return {
       weight: 2,
@@ -94,22 +129,56 @@ function style(feature) {
       color: "white",
       dashArray: "",
       fillOpacity: 1,
-      fillColor: generateColor(40 - result.persentase),
+      //   fillColor: generateColor(40 - result.persentase),
+      //   fillColor: generateColor(40 - result.persentase * 8),
+      //   fillColor: generateColor(40 - result.persentase * 10),
+      fillColor: generateColor(
+        calculatePercentage(
+          result.persentase,
+          Math.min(...values),
+          Math.max(...values)
+        )
+      ),
     };
   } else {
-    return {
-      weight: 2,
-      opacity: 1,
-      color: "white",
-      dashArray: "",
-      fillOpacity: 0,
-      fillColor: generateColor(40 - 0),
-    };
+    // return {
+    //   weight: 2,
+    //   opacity: 1,
+    //   color: "white",
+    //   dashArray: "",
+    //   fillOpacity: 0,
+    //   fillColor: generateColor(0),
+    // };
   }
 }
 
+// function style(feature) {
+//   return {
+//     weight: 2,
+//     opacity: 1,
+//     color: "white",
+//     dashArray: "",
+//     fillOpacity: 1,
+//     fillColor: "dodgerblue",
+//   };
+// }
+
+// let name = "Data Kemiskinan";
+// let data = data_kemiskinan;
+// let name = "Data Stunting";
+// let data = data_stunting;
+// let name = "Data Pengangguran";
+// let data = data_pengangguran;
+// let name = "Rata - rata Upah Per Jam";
+// let data = data_upah;
+let name = "Data Sanitasi Layak";
+let data = data_sanitasi;
+
 // loadGeoJson("id3671021_pinang.geojson");
+// loadGeoJson("tangerang.geojson");
 // loadGeoJson("combined.geojson");
+// loadGeoJson("aceh2.geojson");
+// loadGeoJson("sumatra-utara.geojson");
 // loadGeoJson("kab 37.geojson");
 loadGeoJson("prov 37.geojson");
 
